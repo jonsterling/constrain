@@ -22,11 +22,18 @@
         super(figure)
         MathJax.texReset()
         const svg = MathJax.tex2svg(input, displayMath).childNodes[0],
+              mml = MathJax.tex2mml(input, displayMath),
               data = new XMLSerializer().serializeToString(svg)
         this.img = document.createElement('img')
-        this.img.src = "data:image/svg+xml;base64, " + window.btoa(unescape(encodeURIComponent(data)))
-        const w = svg_length(svg.width.baseVal, figure),
-              h = svg_length(svg.height.baseVal, figure)
+
+        const parser = new DOMParser();
+        const parseResult = parser.parseFromString(mml, 'text/html');
+        this.mml = parseResult.body;
+        console.log(this.mml);
+        // this.img.src = "data:image/svg+xml;base64, " + window.btoa(unescape(encodeURIComponent(data)))
+        const w = svg_length(svg.width.baseVal, figure) + 20,
+              h = svg_length(svg.height.baseVal, figure) + 20
+        console.log(`width: ${w}`);
 
         figure.equal(this.x1(), figure.plus(this.x0(), w))
         figure.equal(this.y1(), figure.plus(this.y0(), h))
@@ -37,7 +44,7 @@
         const [x0, x1, y0, y1] = Constrain.evaluate([this.x0(), this.x1(), this.y0(), this.y1()], valuation)
 
         // console.log(`Rendering MathJax content at (${x0}, ${y0})`)
-        ctx.drawImage(this.img, x0, y0, x1 - x0, y1 - y0)
+        ctx.drawForeignObject(this.mml, x0, y0, x1 - x0, y1 - y0)
     }
   }
 

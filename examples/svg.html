@@ -1,0 +1,67 @@
+<html lang=en>
+  <head>
+    <meta charset="UTF-8">
+    <script src="../numeric-1.2.6.js"></script>
+    <script src="../constrain.js"></script>
+    <script src="../canvas2svg.js"></script>
+    <script src="../constrain-ps.js"></script>
+    <script src="../constrain-pdf.js"></script>
+    <script src="../constrain-mathjax.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-mml-svg.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.js"></script>
+    <style>
+      body {
+        font-family: sans-serif
+      }
+
+      h1 {
+        text-align: center
+      }
+
+      p {
+        text-justify: interword;
+        text-align: justify;
+        line-height: 1.5em
+      }
+
+      #content {
+        margin: 0 auto;
+        max-width: 80ex
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Rendering to SVG</h1>
+    <div id=content>
+      <div style="display: block">
+        <canvas id="canvas" style="width: 700px; height: 400px"></canvas>
+      </div>
+      <p>Below we have an SVG that embeds math as a foreign object. Right now, it seems that constrain relies on the canvas being displayed in the dom, so I have to do some stupid hack to get rid of it after the SVG is rendered. Hopefully that could be cleaned up. </p>
+      <div id="svg"></div>
+      <script>
+        const canvas = document.getElementById("canvas");
+        const figure = new Constrain.Figure(canvas)
+        with(figure) {
+          const m = margin(10), r = rectangle().inset(5)
+          setFontSize(16)
+          equal(m.center(), r.center())
+          sameSize(m, r)
+          let f1 = mathJax("a^2 + b^2 = c^2").expand(5),
+              f2 = mathJax("{1 \\over x + y} = z^2").expand(5)
+          align("left", "top", r, f1)
+          align("right", "bottom", r, f2)
+          setConnectionStyle("intersection")
+          connector(f1, f2).setLineWidth(2).setStrokeStyle("red")
+
+          figure.ctx = new C2S(700,400);
+          figure.render();
+
+          var mysvg = ctx.getSvg();
+          document.getElementById("svg").appendChild(mysvg);
+          canvas.remove();
+        }
+
+      </script>
+    </div>
+  </body>
+</html>
