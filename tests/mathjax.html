@@ -14,7 +14,7 @@
         font-family: sans-serif
     }
 </style>
-  
+
 </head>
 <body>
 <h1>MathJax test</h1>
@@ -26,10 +26,12 @@ with (new Constrain.Figure("mj")) {
     setFontSize(16)
     equal(m.center(), r.center())
     sameSize(m, r)
-    let f1 = mathJax("a^2 + b^2 = c^2").expand(5),
-        f2 = mathJax("{1 \\over x + y} = z^2").expand(5)
+    const h1 = handle().setStrokeStyle("red")
+    const f1 = mathJax("a^2 + b^2 = c^2").expand(5)
+    const f2 = mathJax("{1 \\over x + y} = z^2").expand(5)
     align("left", "top", r, f1)
     align("right", "bottom", r, f2)
+    equal(distance(f1,h1), 10)
     setConnectionStyle("intersection")
     connector(f1, f2).setLineWidth(2).setStrokeStyle("red")
     start()

@@ -39,28 +39,83 @@
       <p>Below we have an SVG that embeds math as a foreign object. Right now, it seems that constrain relies on the canvas being displayed in the dom, so I have to do some stupid hack to get rid of it after the SVG is rendered. Hopefully that could be cleaned up. </p>
       <div id="svg"></div>
       <script>
-        const canvas = document.getElementById("canvas");
+        const canvas = document.getElementsByTagName("canvas")[0]
         const figure = new Constrain.Figure(canvas)
         with(figure) {
-          const m = margin(10), r = rectangle().inset(5)
-          setFontSize(16)
-          equal(m.center(), r.center())
-          sameSize(m, r)
-          let f1 = mathJax("a^2 + b^2 = c^2").expand(5),
-              f2 = mathJax("{1 \\over x + y} = z^2").expand(5)
-          align("left", "top", r, f1)
-          align("right", "bottom", r, f2)
-          setConnectionStyle("intersection")
-          connector(f1, f2).setLineWidth(2).setStrokeStyle("red")
+          const s1 = square().setLineWidth(3),
+            s2 = square().setLineWidth(3)
+          align("abut", "top", s1, hspace(40), s2)
+          equal(s1.w(), 300, s2.w())
+          equal(s1.x1(), canvasRect().x())
+          align("left", "center", s1, canvasRect().inset(2))
+          const h1 = horzLine(),
+            v1 = vertLine()
+          const a = minus(v1.x(), s1.x0()),
+            b = minus(s1.x1(), v1.x())
+          equal(a, minus(h1.y(), s1.y0()))
+          align("left right", "none", h1, s1)
+          align("none", "top bottom", v1, s1)
+          equal(minus(h1.y(), s1.y0()), a)
+          // align("none", "center", h1, hand)
+          const asq = square().setFillStyle("#eaa")
+          mathJax("a^2").at(asq.center())
+          const bsq = square().setFillStyle("#aea")
+          mathJax("b^2").at(bsq.center())
+          align("left", "top", asq, s1)
+          align("right", "none", asq, v1)
+          align("right", "bottom", bsq, s1)
+          align("left", "none", bsq, v1)
 
-          figure.ctx = new C2S(700,400);
+          function rt(p1, p2, p3) {
+            return figure.polygon([p1, p2, p3]).setFillStyle("#eea")
+          }
+          rt(s1.ll(), asq.ll(), bsq.ll())
+          rt(bsq.ll(), asq.ll(), asq.lr())
+          rt(asq.ur(), s1.ur(), bsq.ur())
+          rt(asq.ur(), asq.lr(), bsq.ur())
+          const p1 = s2.ll().toRight(a),
+            p2 = s2.ul().toBottom(a),
+            p3 = s2.ur().toLeft(a),
+            p4 = s2.lr().toTop(a),
+            poly = polygon([p1, p2, p3, p4]).setFillStyle("#ccf")
+          mathJax("c^2").at(poly.center())
+          rt(p1, p2, s2.ll())
+          rt(p2, p3, s2.ul())
+          rt(p3, p4, s2.ur())
+          rt(p4, p1, s2.lr())
+          setStrokeStyle("#008")
+          const al1 = mathJax("a").at(average(s1.ll(), bsq.ll()).toBottom(10))
+          connector(al1.toLeft(5), point(s1.x0(), al1.y())).setEndArrow("arrow")
+          connector(al1.toRight(5), point(bsq.x0(), al1.y())).setEndArrow("arrow")
+          const al2 = mathJax("a").at(s2.ll().toRight(times(a, 0.5)).toBottom(10))
+          connector(al2.toLeft(5), point(s2.x0(), al2.y())).setEndArrow("arrow")
+          connector(al2.toRight(5), p1.toBottom(10)).setEndArrow("arrow")
+          const bl1 = mathJax("b").at(average(s1.ll(), asq.ll()).toLeft(10))
+          connector(bl1.toTop(5), asq.ll().toLeft(10)).setEndArrow("arrow")
+          connector(bl1.toBottom(5), s1.ll().toLeft(10)).setEndArrow("arrow")
+          const bl2 = mathJax("b").at(average(s2.ll(), p2).toLeft(10))
+          const bl2t = point(bl2.x(), p2.y()),
+            bl2b = point(bl2.x(), p1.y())
+          connector(bl2.toTop(5), bl2t).setEndArrow("arrow")
+          connector(bl2.toBottom(5), bl2b).setEndArrow("arrow")
+          let nx = variable("nx", 5),
+            ny = variable("ny", 5)
+          equal(times(nx, b), times(ny, a))
+          equal(plus(sq(nx), sq(ny)), 121)
+          const cl1 = mathJax("c").at(average(asq.ll(), bsq.ll()).toRight(ny).toTop(nx))
+          const cl2 = mathJax("c")
+          equal(cl1.y(), cl2.y())
+          equal(minus(cl2.x(), s2.x0()), minus(cl1.x(), s1.x0()))
+          connector(cl1.center().toLeft(nx).toTop(ny), asq.ll().toRight(ny).toTop(nx)).setEndArrow("arrow")
+          connector(cl1.center().toRight(nx).toBottom(ny), bsq.ll().toRight(ny).toTop(nx)).setEndArrow("arrow")
+          connector(cl2.center().toLeft(nx).toTop(ny), p2.toRight(ny).toTop(nx)).setEndArrow("arrow")
+          connector(cl2.center().toRight(nx).toBottom(ny), p1.toRight(ny).toTop(nx)).setEndArrow("arrow")
+          figure.ctx = new C2S(700, 400);
           figure.render();
-
           var mysvg = ctx.getSvg();
           document.getElementById("svg").appendChild(mysvg);
           canvas.remove();
         }
-
       </script>
     </div>
   </body>

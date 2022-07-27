@@ -31,8 +31,8 @@
         this.mml = parseResult.body;
         console.log(this.mml);
         // this.img.src = "data:image/svg+xml;base64, " + window.btoa(unescape(encodeURIComponent(data)))
-        const w = svg_length(svg.width.baseVal, figure) + 20,
-              h = svg_length(svg.height.baseVal, figure) + 20
+        const w = svg_length(svg.width.baseVal, figure) + 20 ,
+              h = svg_length(svg.height.baseVal, figure)
         console.log(`width: ${w}`);
 
         figure.equal(this.x1(), figure.plus(this.x0(), w))
